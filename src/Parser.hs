@@ -53,7 +53,9 @@ ifthen = If <$> (reserved "if" *> expr)
 
 table :: [[Operator Parser Expr]]
 table =
-  [ [ InfixL (Op Mul <$ symbol "*") ]
+  [ [ InfixL (App <$ symbol "")]
+    ,
+    [ InfixL (Op Mul <$ symbol "*") ]
     ,
     [ InfixL (Op Add <$ symbol "+")
     , InfixL (Op Sub <$ symbol "-")
@@ -61,10 +63,6 @@ table =
     ,
     [ InfixL (Op Eql <$ symbol "==") ]
   ]
-
-term :: Parser Expr
-term =
-  atom >>= \x -> (some atom >>= \xs -> pure (foldl App x xs)) <|> pure x
 
 atom :: Parser Expr
 atom = parens expr
@@ -78,7 +76,7 @@ atom = parens expr
    <|> variable
 
 expr :: Parser Expr
-expr = makeExprParser term table
+expr = makeExprParser atom table
 
 letdecl :: Parser Binding
 letdecl = (\name idents body -> (name, foldr Lam body idents))
